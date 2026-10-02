@@ -1,0 +1,41 @@
+name: Unzip DPL
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Extract ZIP to repository root
+        run: |
+          unzip -o "dpl.zip" -d .
+
+      - name: Remove original ZIP
+        run: |
+          rm -f "dpl.zip"
+
+      - name: Commit and push changes
+        run: |
+          git add -A
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Extract dpl ZIP"
+            git push
+          else
+            echo "Nothing to commit."
+          fi
